@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+#Name: Allysia Mak (amak)
+#Group Members: Xian Chang, Lori Siao
+
+"""
+The viterbi algorithm finds the most probable path of hidden states that corresponds to the given observed sequence. It uses the longest path algorithm for a directed acyclic graph to find the path of the hidden states.
+
+Input: An observed sequence, the allowed states, a matrix of transition probabilities between states, and a matrix of emission probabilities of an observed sequence given each state.
+Output: The longest (most probable) path of hidden states for the provided sequence
+
+Dependencies:
+DAGp15.py
+prPip16.py
+prOutcomep17.py
+p23.py
+
+"""
+import pdb
+import sys
+import math
+import numpy as np
+from DAGp15 import DirectedAcyclicGraph
+from prPip16 import ProbabilityHiddenPath
+from prOutcomep17 import ProbabilitySeqGivenHiddenPath
+from p23 import BuildParameters
+
+probHiddenPath = ProbabilityHiddenPath()
+probSeq = ProbabilitySeqGivenHiddenPath()
+def parseInput(toParse):
+    """Takes the input fGile and parses it the sequence and states into lists and the transition and emission matrices into dictionaries"""
+    splitified = toParse.split('--------')
+    iterations = splitified[0].rstrip().strip()
+    sequence = list(splitified[1].rstrip().strip())
+    alphabet = splitified[2].rstrip().strip().split()
+    availableStates = splitified[3].rstrip().strip().split()
+    transMatrix = splitified[4].rstrip().strip().splitlines()
+    emissionMatrix = splitified[5].rstrip().strip().splitlines()
+
+    transitionDict = probHiddenPath.getTransitionDict(transMatrix)
+    emissionDict = probSeq.getEmissionDict(emissionMatrix)
+
+    return(iterations, list(sequence), alphabet, transitionDict, emissionDict,availableStates)
+
+def reParseMatrix(colHeader, rowHeader, matrix, isTrans):
+    unParsedList = [' '.join(colHeader)]
+
+    for letter, row in zip(rowHeader, matrix):
+        line = str(row).strip('[').rstrip(']')
+        unParsedList.append(str(letter) + line)
+    if isTrans == True:
+        parsedDict = probHiddenPath.getTransitionDict(unParsedList)
+
+    else:
+        parsedDict = probSeq.getEmissionDict(unParsedList)
+
+    return parsedDict
+class HMM():
+    """Parses the input file and builds/returns a dictionary of transition probabilities between states and a dictionary of emission probabilties (probability of a sequence given its state)"""
+
+    def makeGraph(self, sequence, availableStates, transitionDict):
+        """Constructs a graph as a dictionary of transition edges with the log of their edge weights"""
+        dagEdges = {'source':{},'sink':{}}
+        if sequence[0] != 'source':
+            sequence.insert(0, 'source')
+            sequence.append('sink')
+            
+        for state in availableStates:
+            for inState in availableStates:
+                if state in dagEdges.keys() and inState not in dagEdges[state]:
+                    dagEdges[state][inState] = transitionDict[state + inState]
+                else:
+                    dagEdges[state] = {inState: transitionDict[state + inState]}
+            dagEdges['source'][state] = 1-1/len(availableStates)
+            dagEdges['sink'][state] = 1
+
+        return dagEdges
+
+def main():
+
+    toParse = sys.stdin.read()
+
+    HMMstructures = HMM()
+    dagProb = DirectedAcyclicGraph()
+    buildParam = BuildParameters()
+    iterations, sequence, alphabet, transitionDict, emissionDict, availableStates = parseInput(toParse)
+    permSequence = sequence.copy()
+    for i in range(int(iterations)):
+        dagGraph = HMMstructures.makeGraph(sequence, availableStates, transitionDict)
+        viterbiPath = dagProb.longestPath(sequence, dagGraph, transitionDict, emissionDict)
+        transitionMatrix = buildParam.makeTransMatrix(availableStates, viterbiPath)
+        transitionDict = reParseMatrix(availableStates, availableStates, transitionMatrix, isTrans = True)
+        emissionMatrix = buildParam.makeEmissionMatrix(alphabet, availableStates, permSequence, viterbiPath)
+        emissionDict = reParseMatrix(alphabet, availableStates, emissionMatrix, isTrans = False)
+    buildParam.printMatrix(availableStates, availableStates, transitionMatrix)
+    print('--------')
+    buildParam.printMatrix(availableStates, alphabet, emissionMatrix)
+
+if __name__== "__main__":
+    main()
+

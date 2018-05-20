@@ -1,0 +1,43 @@
+
+#!/usr/bin/env python3
+#Name: Allysia Mak (amak)
+#Group Members: none
+
+"""
+Given a string this program will return a count of each word in that string
+Input: a string separated by spaces
+Output: each substring with the count of the substring in the given string
+"""
+
+class DictionaryCount():
+    """ Contains command line parsing code and functions to sum the odd integers on the given interval """
+    def __init__(self):
+        """ Initializes argument parser """
+
+        import sys
+        import argparse
+        #adapted from David Bernick's program.py skeleton code
+        self.parser = argparse.ArgumentParser()
+        self.parser.add_argument("sentence", nargs='*')
+        self.args = self.parser.parse_args()
+        CountDict = {}
+        self.CountDict = CountDict
+        
+    def CountWords(self, interval):
+        for word in self.args.sentence:
+            if word not in self.CountDict.keys():
+                self.CountDict[word] = 1
+#                print(self.CountDict)
+            else:
+                self.CountDict[word] += 1
+        for item in self.CountDict.keys():
+            print('{0} {1}'.format(item, self.CountDict[item]))
+
+
+def main():
+    """ Retrieves command line arguments from class DictionaryCount and passes them to the CountWords method """
+    Counter = DictionaryCount()
+    Counter.CountWords(Counter.args)
+
+if __name__== "__main__":
+    main()

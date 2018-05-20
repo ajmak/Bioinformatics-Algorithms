@@ -1,0 +1,6 @@
+if you have 3 symbols you can normalize to .7
+if took implementation from prev assignment in case where sigma is greater than 0 - normalize to not sigma - calc this value --> get to a probability of 1 when summing all of those with minimum value of sigma
+
+The names of your states must be regular enough to not have if statemtns
+during construction of the viterbi - don't use special cases to develop those
+       build start state outside of your main loop to avoid special cases 

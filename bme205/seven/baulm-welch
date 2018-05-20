@@ -1,0 +1,5 @@
+responsibility matrices
+	       think of these as computed transition or emission probabilities that could be seen across multiple samples
+	       compute the average of these - for this iteration if take the average then end up with transition prob
+	       pi* is emissions and pi** is transition - take average
+	       use the average for next iteration of the baum welch algorithm 

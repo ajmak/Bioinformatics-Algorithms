@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+#Name: Allysia Mak (amak)
+#Group Members: none
+
+"""
+Finds Eulerian path of given directed nodes 
+Input: A directed path containing a Eulerian path
+Output: The Eulerian path 
+Algorithm from: http://www.graph-magics.com/articles/euler.php
+"""
+
+
+import sys
+from collections import defaultdict
+
+
+class EulerianPath:
+    """ Constructs the de Bruijn graph of a string for kMer length -k """
+    def __init__(self, dirGraph):
+        self.dirGraph = dirGraph
+        self.stack = []
+
+    def getEdges(self):
+        """ Counts incoming and outgoing edges of each node and uses this information do determine if they make an Eulerian path or an Eulerian cycle. If it is an Eulerian path then the starting node is determined """
+        inCount = {}
+        outCount = {}
+        edgesDict = {}
+        maxOut = 0
+        isPath = False
+        for each in self.dirGraph:
+
+            outNode = each.split('-')[0].rstrip()
+            inNode = each.split('>')[1].strip()
+            # stores counts of incoming and outgoing edges for each node          
+            if outNode not in outCount.keys(): outCount[outNode] = 0
+            if outNode not in inCount.keys(): inCount[outNode] = 0
+            if ',' in inNode:
+                nodesIn = inNode.split(',')
+                edgesDict[outNode] = nodesIn
+                for nodes in nodesIn:
+                    if nodes not in inCount.keys(): inCount[nodes] = 1
+                    else: inCount[nodes] += 1
+                    if nodes not in outCount.keys(): outCount[nodes] = 0
+                    outCount[outNode] += 1
+
+            else:
+                outCount[outNode] += 1
+                edgesDict[outNode] = [inNode]
+                if inNode not in inCount.keys(): inCount[inNode] = 1
+                else: inCount[inNode] += 1
+                if inNode not in outCount.keys(): outCount[inNode] = 0
+        # finds starting node if Eulerian path
+        for key in outCount.keys():
+            if outCount[key] > inCount[key]:
+                isPath = True
+                curIn = key
+        # chooses a random node in the dict if it is an Eulerian cycle
+        if isPath == False:
+            curIn = key
+        return edgesDict, curIn
+
+    def traversePath(self, edgeDict, firstIn):
+        curNode = firstIn
+        finalPath = []
+        # while stack is not empty or dictionary of edges is not empty
+        while len(self.stack) != 0 or len(edgeDict[curNode]) != 0:
+            if curNode not in edgeDict.keys() or not edgeDict[curNode]:
+                finalPath.append(curNode)
+                curNode = self.stack.pop()
+                continue
+            self.stack.append(curNode)
+            prevNode = curNode
+            curNode = edgeDict[curNode][0]
+            del edgeDict[prevNode][0]
+        finalPath.append(curNode)
+        return finalPath
+
+def main():
+
+    dirGraph = sys.stdin.readlines()
+    graphKmers = EulerianPath(dirGraph)
+    edgeDict, firstIn = graphKmers.getEdges()
+    graphList = graphKmers.traversePath(edgeDict, firstIn)
+
+    graphList.reverse()
+    print('->'.join(graphList))
+    
+
+if __name__== "__main__":
+    main()

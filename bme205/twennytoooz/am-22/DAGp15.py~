@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+#Name: Allysia Mak (amak)
+#Group Members: Yianni Anastopulos, Xian Chang, Lori Siao
+
+"""
+Finds the longest path in a directed acyclic graph from a given source node to sink node and its associated weight.
+
+Input: The edges of a directed acyclic graph and their weights and the source and sink of the subpath desired
+Output: The longest path from source to sink and the cumulative edge weight it took to get there
+
+Parses source and sink nodes from input file when provided at the top of tbe file and separated by newlines
+"""
+
+import sys
+import math
+from collections import defaultdict
+from random import choice
+import pdb
+
+class DirectedAcyclicGraph:
+    """ """
+    def __init__(self):
+        self.kMers = None
+
+    def longestPath(self, stateList, edgeDict, transitionDict, emissionDict):
+        """Finds the longest path in a topologically ordered graph given the source of the subgraph. Returns a dictionary of cumulative weights for a path up to each node and a dictionary of back pointers """
+        pointBack = {key: {state: 'parent' for state in edgeDict.keys() if state != 'S' and state != 'E'}for key in range(len(stateList)-1)}
+        weightDict = {pos: {state: float('-inf') for state in edgeDict.keys() if state != 'S' and state != 'E'}for pos in range(1, len(stateList)-1)}
+        weightDict[0] = {'S': 0}
+        weightDict[len(stateList)-1] = {'sink': float('-inf')}
+        pointBack[len(stateList)-1] = {'sink': 'parent'}
+        curState = 'S'
+
+        for i in range(1, len(stateList)):
+            for child in weightDict[i][curState].keys():
+                # finds max weighted path to that child node
+#                pdb.set_trace()
+                for parent in weightDict[i-1].keys():
+                    if child == 'sink': 
+#                        pdb.set_trace()
+                        nodeWeight = 1
+#                        print(weightDict[i][child])
+                    else:
+                        nodeWeight = float(edgeDict[parent][child]) + float(emissionDict[child + stateList[i]])
+                    if weightDict[i][child] < weightDict[i-1][parent] + nodeWeight:
+                        weightDict[i][child] = weightDict[i-1][parent] + nodeWeight
+                        bestParent = parent
+                pointBack[i][child] = bestParent
+
+            
+#        print(weightDict)
+#        print(pointBack)
+        
+        finalPath = self.backOut(weightDict, pointBack, 'source', 'sink')
+#        print(finalPath)
+        return weightDict, pointBack
+
+
+    def backOut(self, weightDict, pointBack, source, sink):
+        """Creates a list of the longest path from the source to the sink given a dictionary of back pointers that outline the route taken to each node and a dictionary of cumulative weights up until each node """
+        curNode = sink
+        outList = []
+        for i in range(len(weightDict.keys())-1, 0, -1):
+            if curNode == 'sink' or curNode == 'source':
+                curNode = pointBack[i][curNode]
+                continue
+            else:
+                outList.append(curNode)
+                curNode = pointBack[i][curNode]
+        outList = reversed(outList)
+        print(''.join(outList))
+#        return weightDict[sink], outList
+        
+def main():
+
+    nodes = sys.stdin.read().splitlines()
+    source = nodes.pop(0)
+    sink = nodes.pop(0)
+    graphKmers = DirectedAcyclicGraph(nodes)
+
+    edgeDict, backDict, candidates = graphKmers.getEdges(nodes)
+
+    topologicalOrder = graphKmers.topologicalSort(edgeDict, backDict, candidates)
+
+    weightDict, pointBack = graphKmers.longestPath(topologicalOrder, edgeDict, source)
+
+    finalWeight, finalPath = graphKmers.backOut(weightDict, pointBack, source, sink)
+    sys.stdin = open('/dev/tty')
+    print(finalWeight)
+    finalPath.reverse()
+    print('->'.join(finalPath))
+    
+
+if __name__== "__main__":
+    main()

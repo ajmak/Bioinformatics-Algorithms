@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+#Name: Allysia Mak (amak)
+#Group Members: none
+
+"""
+Takes a file containing multiple lines of strings and returns the even lines of strings
+Input: A file of strings with maximum of 1000 lines
+Output: A file containing only the even numbered lines of the input file
+"""
+
+class evenRead():
+    """ Contains command line parsing code and functions to sum the odd integers on the given interval """
+    def __init__(self):
+        """ Initializes argument parser """
+
+        import sys
+        import argparse
+        #adapted from David Bernick's program.py skeleton code
+        self.parser = argparse.ArgumentParser()
+        self.parser.add_argument("infile", type=argparse.FileType('r'))
+        self.parser.add_argument("outfile", type=argparse.FileType('w'))
+        print(args.infile)
+        #http://docs.python.org/2/library/argparse.html#type
+        self.args = self.parser.parse_args()
+        try:
+            open(infile, 'r')
+        except:
+            print("Cannot open file for reading")
+            sys.exit(1)
+
+    def ExtractLines(self, infile, outfile):
+        """ utilizes a for loop and interval of 2 to extract even lines and add to output file """
+        for line in open(infile,'r'):
+            print(line)
+"""
+        x=0
+        if a%2 == 0:
+            i=a+1            
+        else:
+            i=a
+        while i<= b:
+            x+=i
+            i+=2
+        print(x)
+"""
+def main():
+    """ Retrieves command line arguments from class evenRead and passes them to the ExtractLines method """
+    Evens = evenRead()
+    try:
+        print (Evens.args)
+    except:
+        sys.exit(1)
+    Evens.ExtractLines(Evens.args.a, Evens.args.b)
+
+if __name__== "__main__":
+    main()

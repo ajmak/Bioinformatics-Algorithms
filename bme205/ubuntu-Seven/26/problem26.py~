@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+#Name: Allysia Mak (amak)
+#Group Members: 
+
+"""
+Uses the forward/backward algorithm of HMMs to calculate the probability that each node is in the most probable hidden path given the transition probabilities between hidden states and the emission probabilities of each sequence given a hidden state                                                  
+
+Input: An observed sequence, alphabet, the allowed states, a matrix of transition probabilities between states, and a matrix of emission probabilitiesof an observed sequence given each state.                            
+Output: The probability at each state that that state belongs in the most probabl hidden path given the emission based on the HMM profile  
+
+Dependencies:
+DAGp19.py
+HMMclasses
+
+"""
+import pdb
+import sys
+import math
+import numpy as np
+from HMMclasses import HMM
+from DAGp19 import DirectedAcyclicGraph
+from problem25 import ForwardBackward
+
+
+def parseInput(toParse, HMMstructs):
+    """Takes the input file and parses it the sequence and states into lists and the transition and emission matrices into dictionaries"""
+    splitified = toParse.split('--------')
+    iterations = splitified[0].rstrip().strip()
+    sequence = list(splitified[1].rstrip().strip())
+
+    availableStates = splitified[3].rstrip().strip().split()
+    transMatrix = splitified[4].rstrip().strip().splitlines()
+    emissionMatrix = splitified[5].rstrip().strip().splitlines()
+    
+    transitionDict = HMMstructs.getTransitionDict(transMatrix)
+    emissionDict = HMMstructs.getEmissionDict(emissionMatrix)
+
+    return(iterations, list(sequence), transitionDict, emissionDict,availableStates)
+
+class BaulmWelch():
+
+    def getPiStar(self, emissionDict, sequence, availableStates):
+        emisMatrix = np.zeros(shape = (len(availableStates), len(sequence)))
+        print(emissionDict)
+
+        for row in range(len(availableStates)):
+            for col in range(len(sequence)):
+                emisMatrix[row, col] = emissionDict[str(availableStates[row]) + str(sequence[col])]
+                
+        print(emisMatrix)
+        return emisMatrix
+
+    def getPiStarStar(self, sequence, availableStates, forward, backward, forwardSum, transitionDict, emissionDict):
+        print(transitionDict)
+        numTransitions = len(transitionDict.keys())
+        piStSt = np.zeros(shape = ((numTransitions), len(sequence)-1))
+        print()
+        print(forward)
+        print()
+        print(backward)
+        transitions = list(transitionDict.keys())
+        for row in range(len(transitions)):
+            l = transitions[row][:-1]
+            k = transitions[row][1:]
+            print(l)
+            print(k)
+            for col in range(len(sequence)-1):
+                print(row)
+                print(col)
+                print(sequence)
+                print(sequence[col])
+                print(len(sequence))
+                print(forward[col+1])
+                print(backward[col+1])
+                #fw/bkwd dicts are 1 based, need col+1
+                i = col + 1
+                FWxBW = np.multiply(np.float64(forward[i][l]), np.float64(backward[i + 1][k]))
+                translkxEmitk = np.multiply(np.float64(transitionDict[transitions[row]]), np.float64(emissionDict[str(k) + sequence[col]]))
+                #if it doesn't work it might be col+1
+                prodAll = np.multiply(FWxBW, translkxEmitk)
+                print(str(prodAll) + '**********' + str(forwardSum))
+                normalAll = np.divide(prodAll, forwardSum)
+                piStSt[row, col] = normalAll
+        print(piStSt)
+
+    def transMatrixtoDict(alphabet, availableStates, piStar, piStSt, transitionDict):
+        pass
+def main():
+
+    toParse = sys.stdin.read()
+
+    baulmWelch = BaulmWelch()
+    HMMstructs = HMM()
+    forwardBackward = ForwardBackward()
+    iterations, sequence, transitionDict, emissionDict, availableStates = parseInput(toParse, HMMstructs)
+    print(sequence)
+    dagProb = DirectedAcyclicGraph()
+    accurateProbs, forward, forwardSum, backward = forwardBackward.getForwardBackward(sequence, transitionDict, emissionDict, availableStates, dagProb)
+    print(sequence)
+    piStar = baulmWelch.getPiStar(emissionDict, sequence, availableStates)
+    piStarStar = baulmWelch.getPiStarStar(sequence, availableStates, forward, backward, forwardSum, transitionDict, emissionDict) 
+    
+    
+#    for prob in printProbs:
+#        print(*prob, sep="\t")
+
+if __name__== "__main__":
+    main()
+
