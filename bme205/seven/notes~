@@ -1,2 +1,0 @@
-if you have 3 symbols you can normalize to .7
-if took implementation from prev assignment in case where sigma is greater than 0 - normalize to not sigma - calc this value --> get to a probability of 1 when summing all of those with minimum value of sigma

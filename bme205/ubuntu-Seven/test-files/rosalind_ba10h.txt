@@ -1,7 +1,0 @@
-xzyxxyyxyzzyzxxxxzzxzxxzzzyyzxyxzxyzyxxxxyxxzxyzyxzzyyzxzxyzxxyzyzzzzyxxzxzyzzxyxxyxxyzzyxxyzyzxxxxz
---------
-x	y	z
---------
-BBDDCBBBADCBCAACBDCAABBDCBABBBADCABBBBDCBBCADADABCBDBBBADBCBACDCDBADABBCAADADBACCCCBCAAAAABDADBBBCBB
---------
-A	B	C	D

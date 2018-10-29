@@ -1,3 +1,0 @@
-with 1000 iterations should get about 18.5
-do dictionary comprehension to divide seq length 
-index in value which will be list will be same as index as nucleotide in k-mer so can call it by the same thing 
